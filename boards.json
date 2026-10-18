@@ -1,5 +1,5 @@
 {
-  "built": "2026-10-18T10:42:24.469Z",
+  "built": "2026-10-18T11:08:41.458Z",
   "boards": [
     {
       "id": "devGuide-digital",
@@ -8,6 +8,18 @@
         {
           "title": "В роботі",
           "cards": [
+            {
+              "title": "Бойовий тест оплати 1 грн з профілю Альони",
+              "note": "зупинився: код задеплоєно, чекає оплати",
+              "desc": "Альона: /start → урок 3 → «Підтримати» → «Оплатити 1 грн» → оплата → «Я оплатив». Мені — пінг «💰 Оплата».\nПотім ціну: PRICE_UAH у /opt/apps/devguide-digital-bot/.env + перезапуск сервісу.",
+              "done": false
+            },
+            {
+              "title": "Адмінка https://digital.devguide.com.ua",
+              "note": "зупинився: Вадим додає DNS A digital → 46.225.160.170, потім certbot --nginx -d digital.devguide.com.ua",
+              "desc": "Токен входу: bot/ADMIN-TOKEN.local.txt (не в git).",
+              "done": false
+            },
             {
               "title": "«Не вийшло» → інший формат (bot/bot.js, bot/tracks.js)",
               "note": "зупинився: код і чернетки готові, Вадим переглядає тексти; голос — коли запише аудіо (поле voice)",
@@ -44,25 +56,7 @@
               "done": false
             },
             {
-              "title": "Оплата WayForPay $1 замість заглушки (bot/bot.js pay:)",
-              "note": "",
-              "desc": "",
-              "done": false
-            },
-            {
               "title": "Треки «Відео» і «Реклама» по 5 відео (bot/tracks.js)",
-              "note": "",
-              "desc": "",
-              "done": false
-            },
-            {
-              "title": "Аватар бота через @BotFather /setuserpic",
-              "note": "",
-              "desc": "",
-              "done": false
-            },
-            {
-              "title": "Конкуренти, етап А: скрипт збору постів з t.me/s/<канал> + звіт-сторінка (@EasyAIEmma)",
               "note": "",
               "desc": "",
               "done": false
@@ -82,6 +76,12 @@
         {
           "title": "Ідеї",
           "cards": [
+            {
+              "title": "Конкуренти, етап А: скрипт збору постів з t.me/s/<канал> + звіт-сторінка (@EasyAIEmma)",
+              "note": "",
+              "desc": "",
+              "done": false
+            },
             {
               "title": "Вибір формату одразу, а не лише після «Не вийшло»: відео / аудіо / текст-стаття",
               "note": "",
@@ -154,6 +154,24 @@
           "title": "Готово",
           "cards": [
             {
+              "title": "Оплата WayForPay (мерчант DevGuide): інвойс-посилання, «Я оплатив», фонова перевірка 2 год, пінг адміну (bot/pay.js)",
+              "note": "",
+              "desc": "",
+              "done": true
+            },
+            {
+              "title": "Адмінка admin/ (React, Tailwind, shadcn, React Flow): карта бота, уроки карточками, учні",
+              "note": "міні-CRM. API в bot/api.js, токен",
+              "desc": "",
+              "done": true
+            },
+            {
+              "title": "Приватний репозиторій github.com/hukvadim/devguide-digital",
+              "note": "",
+              "desc": "",
+              "done": true
+            },
+            {
               "title": "Трек «Навчитися вчитися» (в кінці меню): 5 уроків текстом",
               "note": "дія замість перегляду, 1.5×, текст у 5 пунктів, кроки по хвилині, переказ своїми словами",
               "desc": "",
@@ -216,7 +234,7 @@
           ]
         }
       ],
-      "updated": "2026-10-18T10:42:24.254Z"
+      "updated": "2026-10-18T11:08:38.944Z"
     }
   ]
 }
