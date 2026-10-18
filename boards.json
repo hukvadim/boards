@@ -1,5 +1,5 @@
 {
-  "built": "2026-10-18T18:58:03.430Z",
+  "built": "2026-10-18T19:50:25.497Z",
   "boards": [
     {
       "id": "devGuide-digital",
@@ -8,6 +8,12 @@
         {
           "title": "В роботі",
           "cards": [
+            {
+              "title": "Нова послідовність навчання (bot/tracks.js): Claude / AI (9), Відео й фото з AI (10, чернетка, 2 заплановані), Сайти (12)",
+              "note": "зупинився: готово локально й у content/scenario.json, на сервер не залито. При деплої: npm run upload (відео сайтів → file_id) → scp data/file_ids.json → content:pull → content:tracks -- claude,video,sites → content:push",
+              "desc": "Уроки Claude / AI — поки текстом (ролики шляху озвучені Bogdan). Переозвучка клоном: video-lab public/ideas/idea-004, idea-006 → voice.vadim.mp3 (не відрендерено). «Перше питання» — потрібен дозвіл speech_to_speech на ключі ElevenLabs",
+              "done": false
+            },
             {
               "title": "Деплой (cd bot && npm test && bash deploy/deploy.sh)",
               "note": "зупинився: закомічено, Вадим сказав поки не деплоїти. Чекають: сортування й нейромережа в Конструкторі, нагадування (після деплою підуть тим, хто мовчить 2–30 днів), звіт о 21:00, сертифікат, «Приведи друга», відгуки, розсилка, «🎬 Reels»",
@@ -421,7 +427,7 @@
           ]
         }
       ],
-      "updated": "2026-10-18T18:58:02.450Z"
+      "updated": "2026-10-18T19:50:24.088Z"
     }
   ]
 }
