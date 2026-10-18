@@ -1,5 +1,5 @@
 {
-  "built": "2026-10-18T11:08:41.458Z",
+  "built": "2026-10-18T11:16:40.861Z",
   "boards": [
     {
       "id": "devGuide-digital",
@@ -12,12 +12,6 @@
               "title": "Бойовий тест оплати 1 грн з профілю Альони",
               "note": "зупинився: код задеплоєно, чекає оплати",
               "desc": "Альона: /start → урок 3 → «Підтримати» → «Оплатити 1 грн» → оплата → «Я оплатив». Мені — пінг «💰 Оплата».\nПотім ціну: PRICE_UAH у /opt/apps/devguide-digital-bot/.env + перезапуск сервісу.",
-              "done": false
-            },
-            {
-              "title": "Адмінка https://digital.devguide.com.ua",
-              "note": "зупинився: Вадим додає DNS A digital → 46.225.160.170, потім certbot --nginx -d digital.devguide.com.ua",
-              "desc": "Токен входу: bot/ADMIN-TOKEN.local.txt (не в git).",
               "done": false
             },
             {
@@ -154,6 +148,12 @@
           "title": "Готово",
           "cards": [
             {
+              "title": "Адмінка живе: https://digital.devguide.com.ua (SSL, noindex). Токен входу",
+              "note": "bot/ADMIN-TOKEN.local.txt (не в git)",
+              "desc": "DNS додано через API ukraine.com.ua (скіл C:/DevGuide/.claude/skills/ukraine-dns), без панелі.",
+              "done": true
+            },
+            {
               "title": "Оплата WayForPay (мерчант DevGuide): інвойс-посилання, «Я оплатив», фонова перевірка 2 год, пінг адміну (bot/pay.js)",
               "note": "",
               "desc": "",
@@ -234,7 +234,7 @@
           ]
         }
       ],
-      "updated": "2026-10-18T11:08:38.944Z"
+      "updated": "2026-10-18T11:16:37.792Z"
     }
   ]
 }
