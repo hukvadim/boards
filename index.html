@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Мої дошки</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230c66e4'/><rect x='6' y='7' width='8' height='18' rx='2' fill='white'/><rect x='18' y='7' width='8' height='11' rx='2' fill='white'/></svg>">
+<style>
+:root {
+  --bg: linear-gradient(135deg, #0c66e4 0%, #6e5dc6 100%);
+  --col: #f1f2f4; --card: #fff; --text: #172b4d; --muted: #626f86; --line: #091e4224;
+  --bar: #fff; --bar-text: #172b4d; --active: #e9f2ff; --active-text: #0c66e4; --shadow: 0 1px 1px #091e4240, 0 0 1px #091e424f;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: linear-gradient(135deg, #0b2a5c 0%, #352c63 100%); --col: #161a1d; --card: #22272b; --text: #dee4ea; --muted: #9fadbc;
+    --line: #a6c5e229; --bar: #22272b; --bar-text: #dee4ea; --active: #1c2b41; --active-text: #579dff; --shadow: 0 1px 1px #03040480; }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); background-attachment: fixed; color: var(--text); font: 14px/1.4 -apple-system, "Segoe UI", Roboto, sans-serif; }
+header { padding: 14px 16px 8px; color: #fff; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+header h1 { margin: 0; font-size: 20px; }
+header small { opacity: .8; }
+.lists { display: flex; gap: 12px; align-items: flex-start; overflow-x: auto; padding: 8px 16px 110px; scroll-snap-type: x mandatory; height: calc(100% - 56px); }
+.list { flex: 0 0 272px; background: var(--col); border-radius: 12px; padding: 8px; scroll-snap-align: start; max-height: 100%; display: flex; flex-direction: column; }
+.list h2 { font-size: 14px; margin: 4px 8px 8px; display: flex; align-items: center; gap: 8px; }
+.list h2 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
+.list h2 .n { margin-left: auto; color: var(--muted); font-weight: 400; }
+.cards { overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 0 2px 2px; }
+.card { background: var(--card); border-radius: 8px; padding: 8px 12px; box-shadow: var(--shadow); }
+.card.done .t { color: var(--muted); text-decoration: line-through; }
+.card .note { margin-top: 6px; font-size: 12px; color: var(--muted); }
+.card .note.stop { color: inherit; background: #fff7d6; border-radius: 6px; padding: 4px 8px; color: #533f04; }
+.empty { color: var(--muted); font-size: 12px; padding: 4px 8px 8px; }
+.list.work .dot { background: #579dff; } .list.bugs .dot { background: #f87168; } .list.ideas .dot { background: #9f8fef; } .list.done .dot { background: #4bce97; }
+.list.bugs .card { border-left: 3px solid #f87168; }
+.list.work .card { border-left: 3px solid #579dff; }
+nav { position: fixed; left: 50%; bottom: max(16px, env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--bar); color: var(--bar-text);
+  border-radius: 14px; padding: 6px; display: flex; gap: 4px; box-shadow: 0 8px 24px #0000004d; max-width: calc(100% - 32px); }
+nav button { border: 0; background: none; color: inherit; font: inherit; font-weight: 500; padding: 8px 14px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+nav button.on { background: var(--active); color: var(--active-text); }
+nav .sep { width: 1px; background: var(--line); margin: 6px 2px; }
+.sheet { position: fixed; inset: 0; background: #0006; display: none; align-items: flex-end; justify-content: center; }
+.sheet.open { display: flex; }
+.sheet ul { list-style: none; margin: 0 0 90px; padding: 8px; background: var(--bar); color: var(--bar-text); border-radius: 14px; width: min(360px, calc(100% - 32px)); }
+.sheet li { padding: 10px 12px; border-radius: 8px; cursor: pointer; display: flex; gap: 8px; }
+.sheet li:hover, .sheet li.on { background: var(--active); color: var(--active-text); }
+@media (max-width: 420px) { .long { display: none; } }
+.sheet li small { margin-left: auto; color: var(--muted); }
+</style>
+</head>
+<body>
+<header><h1 id="title">…</h1><small id="meta"></small></header>
+<main class="lists" id="lists"></main>
+<nav>
+  <button class="on" id="cur">▦ <span>Дошка</span></button>
+  <span class="sep"></span>
+  <button id="switch">⇄ <span class="long">Переключити </span>дошки</button>
+</nav>
+<div class="sheet" id="sheet"><ul id="boards"></ul></div>
+<script>
+const KIND = { 'в роботі': 'work', 'баги': 'bugs', 'ідеї': 'ideas', 'готово': 'done' };
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const store = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch {} } };
+let data;
+
+function render(id) {
+  const b = data.boards.find((x) => x.id === id) ?? data.boards[0];
+  if (!b) { document.getElementById('title').textContent = 'Нема жодного TASKS.md'; return; }
+  store.set('board', b.id);
+  document.title = `${b.title} · Дошки`;
+  document.getElementById('title').textContent = b.title;
+  document.getElementById('cur').querySelector('span').textContent = b.title;
+  document.getElementById('meta').textContent = 'оновлено ' + new Date(b.updated).toLocaleString('uk-UA', { dateStyle: 'short', timeStyle: 'short' });
+  document.getElementById('lists').innerHTML = b.columns.map((c) => `
+    <section class="list ${KIND[c.title.toLowerCase()] ?? ''}">
+      <h2><span class="dot"></span>${esc(c.title)}<span class="n">${c.cards.length}</span></h2>
+      <div class="cards">${c.cards.map((k) => `
+        <div class="card ${k.done ? 'done' : ''}"><div class="t">${esc(k.title)}</div>
+          ${k.note ? `<div class="note ${/^зупинився/i.test(k.note) ? 'stop' : ''}">${/^зупинився/i.test(k.note) ? '⏸ ' : ''}${esc(k.note)}</div>` : ''}
+        </div>`).join('') || '<div class="empty">порожньо</div>'}
+      </div>
+    </section>`).join('');
+  document.getElementById('boards').innerHTML = data.boards.map((x) => {
+    const work = x.columns.find((c) => KIND[c.title.toLowerCase()] === 'work')?.cards.length ?? 0;
+    return `<li data-id="${esc(x.id)}" class="${x.id === b.id ? 'on' : ''}">▦ ${esc(x.title)}<small>${work ? work + ' в роботі' : ''}</small></li>`;
+  }).join('');
+}
+
+const sheet = document.getElementById('sheet');
+document.getElementById('switch').onclick = () => sheet.classList.add('open');
+sheet.onclick = (e) => { const li = e.target.closest('li'); if (li) render(li.dataset.id); sheet.classList.remove('open'); };
+
+fetch('boards.json', { cache: 'no-store' }).then((r) => r.json()).then((d) => { data = d; render(new URLSearchParams(location.search).get('b') ?? store.get('board')); })
+  .catch(() => { document.getElementById('title').textContent = 'Запусти: node build.mjs'; });
+</script>
+</body>
+</html>
