@@ -1,5 +1,5 @@
 {
-  "built": "2026-10-18T09:48:08.667Z",
+  "built": "2026-10-18T10:11:26.512Z",
   "boards": [
     {
       "id": "devGuide-digital",
@@ -10,13 +10,25 @@
           "cards": [
             {
               "title": "«Не вийшло» → інший формат (bot/bot.js, bot/tracks.js)",
-              "note": "зупинився: треба тексти інструкцій і промпти для 5 уроків Claude",
+              "note": "зупинився: код і чернетки готові, Вадим переглядає тексти; голос — коли запише аудіо (поле voice)",
               "desc": "Після «🤔 Не вийшло» бот пропонує:\n- 📄 Інструкція текстом — покроково\n- 💬 Готовий промпт — скопіювати в ChatGPT/Claude\n- 🎧 Голосом — коли запишу аудіо\n- ✍️ Написати Вадиму — як зараз\nРахувати вибір у /stats: який формат люди сприймають краще.",
               "done": false
             },
             {
               "title": "Додати бота адміном у канал devguide_com_ua",
               "note": "без цього перевірка підписки пропускає всіх",
+              "desc": "",
+              "done": false
+            },
+            {
+              "title": "Instagram → Telegram: кампанії igops ведуть у бота (D:/Projects/instagram-webhook)",
+              "note": "зупинився: Вадим вставляє команди /campaign у групу «DevGuide · Instagram»",
+              "desc": "Код не потрібен: igops уже має кампанії з кодовими словами. Міняємо лише посилання.\nClaude-Reels: ДВА (нема кампанії!), КОД, ПРОЄКТ, ПРОМПТ, ЗВІТ → t.me/devguide_digital_bot?start=insta_claude\nПісля — перевірити з другого акаунта: коментар зі словом → Direct → бот.",
+              "done": false
+            },
+            {
+              "title": "Перевірити бота на сервері: /start, урок, «Не вийшло», /stats",
+              "note": "",
               "desc": "",
               "done": false
             }
@@ -26,37 +38,25 @@
           "title": "Далі",
           "cards": [
             {
-              "title": "Аватар бота через @BotFather /setuserpic",
-              "note": "",
-              "desc": "",
-              "done": false
-            },
-            {
               "title": "Оплата WayForPay $1 замість заглушки (bot/bot.js pay:)",
               "note": "",
               "desc": "",
               "done": false
             },
             {
-              "title": "Треки Сайти, Відео, Реклама по 5 відео (bot/tracks.js)",
+              "title": "Треки «Відео» і «Реклама» по 5 відео (bot/tracks.js)",
               "note": "",
               "desc": "",
               "done": false
             },
             {
-              "title": "Хостинг бота, щоб працював без мого ПК",
+              "title": "Аватар бота через @BotFather /setuserpic",
               "note": "",
               "desc": "",
               "done": false
             },
             {
               "title": "Конкуренти, етап А: скрипт збору постів з t.me/s/<канал> + звіт-сторінка (@EasyAIEmma)",
-              "note": "",
-              "desc": "",
-              "done": false
-            },
-            {
-              "title": "Переписати Instagram-бота під воронку → Telegram-бот",
               "note": "",
               "desc": "",
               "done": false
@@ -76,6 +76,18 @@
         {
           "title": "Ідеї",
           "cards": [
+            {
+              "title": "Стаб @devguide_ai_bot в igops (src/funnel)",
+              "note": "вимкнути або прибрати, головний бот @devguide_digital_bot",
+              "desc": "",
+              "done": false
+            },
+            {
+              "title": "Кодові слова для Reels «Сайти» → ?start=insta_sites",
+              "note": "",
+              "desc": "",
+              "done": false
+            },
             {
               "title": "Кнопки «Про мене 👋» і «Доєднатися ✅» в нижньому меню (після WayForPay)",
               "note": "",
@@ -112,6 +124,24 @@
           "title": "Готово",
           "cards": [
             {
+              "title": "Хостинг: systemd devguide-digital-bot на VPS 46.225.160.170, /opt/apps/devguide-digital-bot",
+              "note": "",
+              "desc": "Деплой: cd bot && bash deploy/deploy.sh. Логи: ssh root@46.225.160.170 journalctl -u devguide-digital-bot\nЛокально бота більше НЕ запускати — дві копії конфліктують.",
+              "done": true
+            },
+            {
+              "title": "Трек «Сайти»: 5 відео site 01–05, тексти, інструкції, промпти",
+              "note": "",
+              "desc": "",
+              "done": true
+            },
+            {
+              "title": "Рішення: один бот @devguide_digital_bot, напрями",
+              "note": "треки всередині",
+              "desc": "Кожен напрям має своє посилання: t.me/devguide_digital_bot?start=insta_<трек>.\nОдин список учнів, одна оплата, одна перевірка підписки, одна статистика.\nОкремий бот — лише для іншого бренду чи аудиторії (напр. Lovim).",
+              "done": true
+            },
+            {
               "title": "PLAN.md",
               "note": "карта проєкту",
               "desc": "",
@@ -138,7 +168,7 @@
           ]
         }
       ],
-      "updated": "2026-10-18T09:42:47.114Z"
+      "updated": "2026-10-18T10:11:26.275Z"
     }
   ]
 }
