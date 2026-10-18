@@ -7,17 +7,20 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230c66e4'/><rect x='6' y='7' width='8' height='18' rx='2' fill='white'/><rect x='18' y='7' width='8' height='11' rx='2' fill='white'/></svg>">
 <style>
 :root {
-  --bg: linear-gradient(135deg, #0c66e4 0%, #6e5dc6 100%);
   --col: #f1f2f4; --card: #fff; --text: #172b4d; --muted: #626f86; --line: #091e4224;
   --bar: #fff; --bar-text: #172b4d; --active: #e9f2ff; --active-text: #0c66e4; --shadow: 0 1px 1px #091e4240, 0 0 1px #091e424f;
 }
 @media (prefers-color-scheme: dark) {
-  :root { --bg: linear-gradient(135deg, #0b2a5c 0%, #352c63 100%); --col: #161a1d; --card: #22272b; --text: #dee4ea; --muted: #9fadbc;
+    :root { --col: #161a1d; --card: #22272b; --text: #dee4ea; --muted: #9fadbc;
     --line: #a6c5e229; --bar: #22272b; --bar-text: #dee4ea; --active: #1c2b41; --active-text: #579dff; --shadow: 0 1px 1px #03040480; }
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; }
-body { background: var(--bg); background-attachment: fixed; color: var(--text); font: 14px/1.4 -apple-system, "Segoe UI", Roboto, sans-serif; }
+body { background: #5c6fc9; color: var(--text); font: 14px/1.4 -apple-system, "Segoe UI", Roboto, sans-serif; }
+/* Меш-градієнт + зерно (як у image-mesh-gradient.png) */
+#mesh { position: fixed; inset: 0; z-index: -1; transition: background .6s; }
+#mesh::after { content: ""; position: absolute; inset: 0; opacity: .18; mix-blend-mode: overlay;
+  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27200%27 height=%27200%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%27.9%27 numOctaves=%272%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E"); }
 header { padding: 14px 16px 8px; color: #fff; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 header h1 { margin: 0; font-size: 20px; }
 header small { opacity: .8; }
@@ -64,12 +67,16 @@ nav .sep { width: 1px; background: var(--line); margin: 6px 2px; }
 </style>
 </head>
 <body>
+<div id="mesh"></div>
 <header><h1 id="title">…</h1><small id="meta"></small></header>
 <main class="lists" id="lists"></main>
 <nav>
   <button class="on" id="cur">▦ <span>Дошка</span></button>
   <span class="sep"></span>
   <button id="switch">⇄ <span class="long">Переключити </span>дошки</button>
+  <span class="sep"></span>
+  <button id="gen" title="Новий градієнт">🎨</button>
+  <button id="pin" title="Зафіксувати градієнт">📌</button>
 </nav>
 <div class="sheet" id="sheet"><ul id="boards"></ul></div>
 <dialog id="modal">
@@ -129,6 +136,32 @@ document.getElementById('lists').onclick = (e) => {
   modal.showModal();
 };
 modal.onclick = (e) => { if (e.target === modal || e.target.closest('.m-close')) modal.close(); };
+
+// ---------- Меш-градієнт. seed 0 = еталон з image-mesh-gradient.png; інші — генеруються.
+// Щоб зафіксувати для всіх пристроїв: заміни DEFAULT_SEED на число з підказки кнопки 📌.
+const DEFAULT_SEED = 0;
+const SAMPLE = 'radial-gradient(at 0% 38%, #dc8ad8 0, transparent 32%), radial-gradient(at 85% 8%, #6d93e2 0, transparent 60%), radial-gradient(at 48% 42%, #8d87df 0, transparent 42%), radial-gradient(at 18% 88%, #172c66 0, transparent 62%), radial-gradient(at 68% 82%, #283d80 0, transparent 50%), #5d6fca';
+function rng(a) { return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function mesh(seed) {
+  if (!seed) return SAMPLE;
+  const r = rng(seed), h = r() * 360, hsl = (dh, s, l) => `hsl(${(h + dh + 360) % 360} ${s}% ${l}%)`;
+  const blobs = Array.from({ length: 5 }, (_, i) => {
+    const light = i < 2 ? 18 + r() * 12 : 50 + r() * 20; // 2 темні плями + 3 світлі, як в еталоні
+    return `radial-gradient(at ${Math.round(r() * 100)}% ${Math.round(r() * 100)}%, ${hsl((r() - 0.5) * 140, 50 + r() * 30, light)} 0, transparent ${Math.round(35 + r() * 30)}%)`;
+  });
+  return `${blobs.reverse().join(', ')}, ${hsl(0, 50, 45)}`;
+}
+let seed = Number(store.get('meshSeed') ?? DEFAULT_SEED);
+const pinned = () => String(seed) === (store.get('meshSeed') ?? String(DEFAULT_SEED));
+function paint() {
+  document.getElementById('mesh').style.background = mesh(seed);
+  const pin = document.getElementById('pin');
+  pin.classList.toggle('on', pinned());
+  pin.title = pinned() ? `Зафіксовано (seed ${seed})` : `Зафіксувати (seed ${seed})`;
+}
+document.getElementById('gen').onclick = () => { seed = 1 + Math.floor(Math.random() * 99999); paint(); };
+document.getElementById('pin').onclick = () => { store.set('meshSeed', seed); paint(); };
+paint();
 
 const sheet = document.getElementById('sheet');
 document.getElementById('switch').onclick = () => sheet.classList.add('open');
