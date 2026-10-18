@@ -27,10 +27,24 @@ header small { opacity: .8; }
 .list h2 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
 .list h2 .n { margin-left: auto; color: var(--muted); font-weight: 400; }
 .cards { overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 0 2px 2px; }
-.card { background: var(--card); border-radius: 8px; padding: 8px 12px; box-shadow: var(--shadow); }
+.card { background: var(--card); border-radius: 8px; padding: 8px 12px; box-shadow: var(--shadow); cursor: pointer; border: 0; color: inherit; font: inherit; text-align: left; width: 100%; }
+.card:hover { outline: 2px solid var(--active-text); }
 .card.done .t { color: var(--muted); text-decoration: line-through; }
-.card .note { margin-top: 6px; font-size: 12px; color: var(--muted); }
-.card .note.stop { color: inherit; background: #fff7d6; border-radius: 6px; padding: 4px 8px; color: #533f04; }
+.badges { display: flex; gap: 6px; margin-top: 6px; font-size: 12px; color: var(--muted); }
+.badges .stop { background: #fff7d6; color: #533f04; border-radius: 4px; padding: 0 6px; }
+dialog { border: 0; border-radius: 12px; padding: 0; width: min(640px, calc(100% - 24px)); max-height: calc(100% - 48px); background: var(--col); color: var(--text); box-shadow: 0 12px 32px #0006; }
+dialog::backdrop { background: #000a; }
+.m-head { padding: 20px 56px 8px 20px; position: relative; }
+.m-head h3 { margin: 0; font-size: 20px; line-height: 1.3; }
+.m-head .in { color: var(--muted); margin-top: 6px; font-size: 13px; }
+.m-close { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 8px; border: 0; background: none; color: inherit; font-size: 20px; cursor: pointer; }
+.m-close:hover { background: var(--line); }
+.m-body { padding: 8px 20px 20px; }
+.m-body h4 { margin: 16px 0 8px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.m-stop { background: #fff7d6; color: #533f04; border-radius: 8px; padding: 10px 12px; }
+.m-desc { background: var(--card); border-radius: 8px; padding: 10px 12px; white-space: pre-wrap; }
+.m-empty { color: var(--muted); }
+.m-copy { margin-top: 16px; border: 0; border-radius: 8px; padding: 8px 14px; background: var(--active); color: var(--active-text); font: inherit; font-weight: 500; cursor: pointer; }
 .empty { color: var(--muted); font-size: 12px; padding: 4px 8px 8px; }
 .list.work .dot { background: #579dff; } .list.bugs .dot { background: #f87168; } .list.ideas .dot { background: #9f8fef; } .list.done .dot { background: #4bce97; }
 .list.bugs .card { border-left: 3px solid #f87168; }
@@ -58,11 +72,16 @@ nav .sep { width: 1px; background: var(--line); margin: 6px 2px; }
   <button id="switch">⇄ <span class="long">Переключити </span>дошки</button>
 </nav>
 <div class="sheet" id="sheet"><ul id="boards"></ul></div>
+<dialog id="modal">
+  <div class="m-head"><h3></h3><div class="in"></div><button class="m-close" aria-label="Закрити">✕</button></div>
+  <div class="m-body"></div>
+</dialog>
 <script>
 const KIND = { 'в роботі': 'work', 'баги': 'bugs', 'ідеї': 'ideas', 'готово': 'done' };
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const store = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch {} } };
-let data;
+let data, current;
+const isStop = (k) => /^зупинився/i.test(k.note);
 
 function render(id) {
   const b = data.boards.find((x) => x.id === id) ?? data.boards[0];
@@ -72,13 +91,14 @@ function render(id) {
   document.getElementById('title').textContent = b.title;
   document.getElementById('cur').querySelector('span').textContent = b.title;
   document.getElementById('meta').textContent = 'оновлено ' + new Date(b.updated).toLocaleString('uk-UA', { dateStyle: 'short', timeStyle: 'short' });
-  document.getElementById('lists').innerHTML = b.columns.map((c) => `
+  current = b;
+  document.getElementById('lists').innerHTML = b.columns.map((c, ci) => `
     <section class="list ${KIND[c.title.toLowerCase()] ?? ''}">
       <h2><span class="dot"></span>${esc(c.title)}<span class="n">${c.cards.length}</span></h2>
-      <div class="cards">${c.cards.map((k) => `
-        <div class="card ${k.done ? 'done' : ''}"><div class="t">${esc(k.title)}</div>
-          ${k.note ? `<div class="note ${/^зупинився/i.test(k.note) ? 'stop' : ''}">${/^зупинився/i.test(k.note) ? '⏸ ' : ''}${esc(k.note)}</div>` : ''}
-        </div>`).join('') || '<div class="empty">порожньо</div>'}
+      <div class="cards">${c.cards.map((k, ki) => `
+        <button class="card ${k.done ? 'done' : ''}" data-c="${ci}" data-k="${ki}"><div class="t">${esc(k.title)}</div>
+          ${isStop(k) || k.note || k.desc ? `<div class="badges">${isStop(k) ? '<span class="stop">⏸ зупинився</span>' : ''}${(k.note && !isStop(k)) || k.desc ? '<span>≡</span>' : ''}</div>` : ''}
+        </button>`).join('') || '<div class="empty">порожньо</div>'}
       </div>
     </section>`).join('');
   document.getElementById('boards').innerHTML = data.boards.map((x) => {
@@ -86,6 +106,29 @@ function render(id) {
     return `<li data-id="${esc(x.id)}" class="${x.id === b.id ? 'on' : ''}">▦ ${esc(x.title)}<small>${work ? work + ' в роботі' : ''}</small></li>`;
   }).join('');
 }
+
+// Модалка картки — лише перегляд; змінювати в TASKS.md.
+const modal = document.getElementById('modal');
+document.getElementById('lists').onclick = (e) => {
+  const el = e.target.closest('.card');
+  if (!el) return;
+  const col = current.columns[el.dataset.c];
+  const k = col.cards[el.dataset.k];
+  modal.querySelector('h3').textContent = (k.done ? '✓ ' : '') + k.title;
+  modal.querySelector('.in').textContent = `у колонці «${col.title}» · ${current.title}`;
+  const stop = isStop(k) ? k.note.replace(/^зупинився:?\s*/i, '') : '';
+  const desc = [isStop(k) ? '' : k.note, k.desc].filter(Boolean).join('\n');
+  modal.querySelector('.m-body').innerHTML =
+    (stop ? `<h4>⏸ Де зупинився</h4><div class="m-stop">${esc(stop)}</div>` : '') +
+    `<h4>≡ Опис</h4>${desc ? `<div class="m-desc">${esc(desc)}</div>` : '<div class="m-empty">Опису нема. Додай рядки з відступом під задачею в TASKS.md.</div>'}` +
+    `<button class="m-copy">Копіювати для Claude</button>`;
+  modal.querySelector('.m-copy').onclick = (ev) => {
+    navigator.clipboard?.writeText(`${current.title}: ${k.title}${k.note ? ' — ' + k.note : ''}${k.desc ? '\n' + k.desc : ''}`);
+    ev.target.textContent = 'Скопійовано ✓';
+  };
+  modal.showModal();
+};
+modal.onclick = (e) => { if (e.target === modal || e.target.closest('.m-close')) modal.close(); };
 
 const sheet = document.getElementById('sheet');
 document.getElementById('switch').onclick = () => sheet.classList.add('open');

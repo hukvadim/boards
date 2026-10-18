@@ -9,9 +9,14 @@ export function parse(md, id) {
     let m;
     if ((m = line.match(/^# (.+)/))) board.title = m[1].trim();
     else if ((m = line.match(/^## (.+)/))) board.columns.push({ title: m[1].trim(), cards: [] });
-    else if ((m = line.match(/^\s*- \[( |x)\] (.+)/i)) && board.columns.length) {
+    else if ((m = line.match(/^- \[( |x)\] (.+)/i)) && board.columns.length) {
       const [title, ...rest] = m[2].split(' — ');
-      board.columns.at(-1).cards.push({ title: title.trim(), note: rest.join(' — ').trim(), done: m[1] !== ' ' });
+      board.columns.at(-1).cards.push({ title: title.trim(), note: rest.join(' — ').trim(), desc: '', done: m[1] !== ' ' });
+    }
+    // Рядки з відступом під карткою — її опис (видно в модалці).
+    else if ((m = line.match(/^\s{2,}(\S.*)/)) && board.columns.at(-1)?.cards.length) {
+      const card = board.columns.at(-1).cards.at(-1);
+      card.desc += (card.desc ? '\n' : '') + m[1];
     }
   }
   return board;
